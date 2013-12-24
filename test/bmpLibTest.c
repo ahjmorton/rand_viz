@@ -1,12 +1,14 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <check.h>
 
 #include "bmpLib.h"
 
 static void assert_struct_nerr(const bmp_result bmp) {
-    ck_assert_int_ge(0, bmp.resultSize);
-    ck_assert_ptr_ne(NULL, bmp.result);
+    
+    ck_assert_msg(bmp.resultSize >= 0, "Result size must be ge 0");
+    ck_assert_msg(bmp.result != NULL, "Result data cannot be NULL");
 }
 
 START_TEST(test_simple_image) 
