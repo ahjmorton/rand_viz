@@ -2,8 +2,8 @@
 #define HEADER_BMP_LIB
 
 struct _bmp_result_holder {
-    int resultSize;
-    unsigned char * result;
+    int dataSize;
+    unsigned char * data;
 };
 
 typedef struct _bmp_result_holder bmp_result; 
