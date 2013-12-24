@@ -6,20 +6,17 @@ project(rand_viz C)
 set(CMAKE_C_FLAGS_PROFILING "-pg" CACHE STRING "Flags for profiling builds")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set(SRC_PATH "${CMAKE_SOURCE_DIR}/src")
-set(INCLUDE_PATH "${CMAKE_SOURCE_DIR}/include")
 set(TEST_PATH "${CMAKE_SOURCE_DIR}/test")
 
-
-#Declare BMP object library 
+#Declare BMP variables 
+set(BMP_LIB "bmpLib")
 set(BMP_LIB_SRC "${SRC_PATH}/bmpLib")
+set(BMP_LIB_INCLUDES "${BMP_LIB_SRC}")
 file(GLOB BMP_LIB_SOURCES "${BMP_LIB_SRC}/*.c")
-include_directories("${BMP_LIB_SRC}")
-add_library(bmpLib OBJECT ${BMP_LIB_SOURCES})
+
+#Declare BMP variables 
+include_directories("${BMP_LIB_INCLUDES}")
+add_library(${BMP_LIB} STATIC ${BMP_LIB_SOURCES})
 
 #Setup testing
-enable_testing()
-
-find_package(Check)
-if(NOT CHECK_FOUND)
-    message(FATAL_ERROR "ERROR: Check not found for tests, failing")
-endif(NOT CHECK_FOUND)
+add_subdirectory(test)
