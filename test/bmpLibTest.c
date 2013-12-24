@@ -4,9 +4,16 @@
 
 #include "bmpLib.h"
 
+static void assert_struct_nerr(const bmp_result bmp) {
+    ck_assert_int_ge(0, bmp.resultSize);
+    ck_assert_ptr_ne(NULL, bmp.result);
+}
+
 START_TEST(test_simple_image) 
 {
-    
+    const unsigned char input = 0xAA; // 10101010
+    bmp_result bmp = create_bw_bmp(&input, 1);
+    assert_struct_nerr(bmp);   
 }
 END_TEST
 

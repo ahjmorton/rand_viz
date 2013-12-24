@@ -1,6 +1,4 @@
-#Setup testing
-enable_testing()
-
+#Setup check testing
 find_package(Check)
 if(NOT CHECK_FOUND)
     message(FATAL_ERROR "ERROR: Check not found for tests, failing")

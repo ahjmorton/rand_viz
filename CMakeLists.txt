@@ -19,4 +19,5 @@ include_directories("${BMP_LIB_INCLUDES}")
 add_library(${BMP_LIB} STATIC ${BMP_LIB_SOURCES})
 
 #Setup testing
+enable_testing()
 add_subdirectory(test)
