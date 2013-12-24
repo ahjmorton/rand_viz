@@ -20,7 +20,6 @@ START_TEST(test_generates_valid_result)
 }
 END_TEST
 
-
 static Suite * bmpSuite(void) {
     Suite * s = suite_create("bmpLib");
     TCase * tc_simple = tcase_create("Simple tests");

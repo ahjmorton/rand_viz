@@ -14,4 +14,4 @@ include_directories(${TEST_INCLUDES})
 
 add_executable(bmpLibTest "${TEST_SRC}/bmpLibTest.c")
 target_link_libraries(bmpLibTest ${TEST_LIBS})
-add_test(bmpLibTest bmpLibTest)
+add_test(simple_bmp_test bmpLibTest)
