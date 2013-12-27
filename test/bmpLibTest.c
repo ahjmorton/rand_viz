@@ -9,9 +9,8 @@
 
 // Constants
 
-#define BM_HEADER_SIZE 14
-#define DIB_HEADER_SIZE 40
-
+static const uint32_t BM_HEADER_SIZE = 14;
+static const uint32_t DIB_HEADER_SIZE = 40;
 static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
 
 // Binary for 10101010
@@ -54,8 +53,7 @@ START_TEST(test_dib_header_valid)
     const int32_t size = result->dataSize;
     ck_assert_msg(size >= BM_HEADER_SIZE + DIB_HEADER_SIZE, "Size must be greater than BM_HEADER_SIZE + DIB_HEADER_SIZE (BMP header + DIB Header)");
     const unsigned char * dibData = result->data + BM_HEADER_SIZE;
-    const uint32_t headerSize = DIB_HEADER_SIZE;
-    ck_assert_msg(memcmp(&headerSize, dibData, sizeof(uint32_t)) ==  0, "Expecting header size to be present as first entry in dib header");
+    ck_assert_msg(memcmp(&DIB_HEADER_SIZE, dibData, sizeof(uint32_t)) ==  0, "Expecting header size to be present as first entry in dib header");
 }
 END_TEST
 
