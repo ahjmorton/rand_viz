@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdint.h>
 
 #include <check.h>
 
@@ -9,6 +10,7 @@
 // Constants
 
 #define BM_HEADER_SIZE 14
+#define DIB_HEADER_SIZE 40
 
 static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
 
@@ -40,12 +42,24 @@ END_TEST
 
 START_TEST(test_bmp_header_valid) 
 {
-    const int size = result->dataSize;
+    const int32_t size = result->dataSize;
     const unsigned char * data = result->data;
     ck_assert_msg(size >= BM_HEADER_SIZE, "Size must be greater than BM_HEADER_SIZE");
-    ck_assert_msg(memcmp(BM_MAGIC, data, 2) ==  0, "BMP magic number not found");
+    ck_assert_msg(memcmp(BM_MAGIC, data, sizeof(BM_MAGIC)) ==  0, "BMP magic number not found");
 }
 END_TEST
+
+START_TEST(test_dib_header_valid) 
+{
+    const int32_t size = result->dataSize;
+    ck_assert_msg(size >= BM_HEADER_SIZE + DIB_HEADER_SIZE, "Size must be greater than BM_HEADER_SIZE + DIB_HEADER_SIZE (BMP header + DIB Header)");
+    const unsigned char * dibData = result->data + BM_HEADER_SIZE;
+    const uint32_t headerSize = DIB_HEADER_SIZE;
+    ck_assert_msg(memcmp(&headerSize, dibData, sizeof(uint32_t)) ==  0, "Expecting header size to be present as first entry in dib header");
+}
+END_TEST
+
+
 
 // Custom asserts impls
 static void assert_struct_nerr(const bmp_result * const bmp) {
@@ -62,6 +76,7 @@ static Suite * bmpSuite(void) {
     tcase_add_checked_fixture(tc_simple, setup, teardown);
     tcase_add_test(tc_simple, test_created_struct_valid);
     tcase_add_test(tc_simple, test_bmp_header_valid);
+    tcase_add_test(tc_simple, test_dib_header_valid);
     suite_add_tcase(s, tc_simple);
     return s;
 }
