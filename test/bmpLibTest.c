@@ -1,12 +1,19 @@
 #include <stdlib.h>
 #include <stddef.h>
+#include <string.h>
 
 #include <check.h>
 
 #include "bmpLib.h"
 
+// Constants
+
 #define BM_HEADER_SIZE 14
 
+static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
+
+// Binary for 10101010
+// so black, white, black white etc.
 static const unsigned char TEST_INPUT = 0xAA;
 static bmp_result * result;
 
@@ -34,7 +41,9 @@ END_TEST
 START_TEST(test_bmp_header_valid) 
 {
     const int size = result->dataSize;
+    const unsigned char * data = result->data;
     ck_assert_msg(size >= BM_HEADER_SIZE, "Size must be greater than BM_HEADER_SIZE");
+    ck_assert_msg(memcmp(BM_MAGIC, data, 2) ==  0, "BMP magic number not found");
 }
 END_TEST
 
