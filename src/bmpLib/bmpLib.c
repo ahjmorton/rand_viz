@@ -5,13 +5,23 @@
 
 #include "bmpLib.h"
 
+// BMP / DIB related constants
+#define COLOR_PLANES 1
+#define COLOR_BITS 1
+#define COMPRESSION 0 
+#define DEFAULT_IMAGE_SIZE 0 
+
 static const uint32_t BM_HEADER_SIZE = 14;
 static const uint32_t DIB_HEADER_SIZE = 40;
-static const unsigned char BM_MAGIC[2] = {0x42, 0x4D};
 static const uint32_t DIB_HEADER_VAL = DIB_HEADER_SIZE;
 static const uint32_t HEADERS_SIZE = BM_HEADER_SIZE + DIB_HEADER_SIZE;
+static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; // 'BM'
+
+// Convience constants
 static const size_t DWORD = sizeof(uint32_t);
 static const size_t WORD  = sizeof(uint16_t);
+
+// Function decls 
 
 static int32_t bw_pixel_width(uint32_t dataLen);
 static int32_t bw_pixel_height(uint32_t dataLen);
@@ -21,10 +31,10 @@ static void memcpy_suint(unsigned char * loc, uint16_t value);
 static void memcpy_int(unsigned char * loc, int32_t value);
 
 bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
-    bmp_result * const result = (bmp_result *)calloc(1, sizeof(bmp_result));
+    bmp_result * const result = (bmp_result *)malloc(1 * sizeof(bmp_result));
 
     unsigned char * bmpHeader = 
-        (unsigned char *)calloc(HEADERS_SIZE, sizeof(unsigned char));
+        (unsigned char *)malloc(HEADERS_SIZE * sizeof(unsigned char));
     result->data = bmpHeader;
     result->dataSize = HEADERS_SIZE;
     
@@ -38,10 +48,15 @@ bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
     dibHeader += DWORD;
     memcpy_int(dibHeader, bw_pixel_height(dataLen));
     dibHeader += DWORD;
-    memcpy_suint(dibHeader, 1);
+    memcpy_suint(dibHeader, COLOR_PLANES);
     dibHeader += WORD;
-    memcpy_suint(dibHeader, 1);
+    memcpy_suint(dibHeader, COLOR_BITS);
     dibHeader += WORD;
+    memcpy_uint(dibHeader, COMPRESSION);
+    dibHeader += DWORD;
+    memcpy_uint(dibHeader, DEFAULT_IMAGE_SIZE);
+    dibHeader += DWORD;
+    
     return result;
 }
 

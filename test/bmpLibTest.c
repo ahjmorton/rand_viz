@@ -17,15 +17,15 @@ static const uint32_t DIB_HEADER_SIZE = 40;
 static const uint32_t DIB_HEADER_VAL = DIB_HEADER_SIZE;
 static const uint16_t DIB_COLOR_PLANES = 1;
 static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
-// Binary for 10101010
-// so black, white, black white etc.
-static const unsigned char TEST_INPUT = 0xAA;
+static const unsigned char TEST_INPUT = 0b10101010;
 static const uint32_t TEST_SIZE = sizeof(unsigned char);
 static const uint32_t TEST_BIT_SIZE = TEST_SIZE * CHAR_BIT;
 static const int32_t EXPECT_WIDTH = TEST_BIT_SIZE;
 static const int32_t EXPECT_HEIGHT = 1;
 static const uint16_t COLOR_PLANES = 1;
 static const uint16_t COLOR_BITS   = 1; 
+static const uint32_t COMPRESSION  = 0; 
+static const uint32_t DEFAULT_IMAGE_SIZE = 0;
 
 static bmp_result * result;
 
@@ -40,14 +40,15 @@ void teardown(void) {
     }
 }
 
-// Custom assert decls
-static void assert_struct_nerr(const bmp_result * const bmp);
 
 //Tests go here
 START_TEST(test_created_struct_valid) 
 {
-    assert_struct_nerr(result);
+    ck_assert_msg(result != NULL, "Result cannot be NULL");
+    ck_assert_msg(result->data != NULL, "Result data cannot be NULL");
+    ck_assert_msg(result->dataSize >= 0, "Result size must be ge 0");
 }
+
 END_TEST
 
 START_TEST(test_bmp_header_valid) 
@@ -93,19 +94,19 @@ START_TEST(test_dib_header_valid)
         "Only expected 1 color bit to be specified");
 
     dibData += WORD;
+ 
+    ck_assert_msg(memcmp(&COMPRESSION, dibData, DWORD) == 0,
+        "Expected compression to be disabled");
+ 
+    dibData += DWORD;
 
+    ck_assert_msg(memcmp(&DEFAULT_IMAGE_SIZE, dibData, DWORD) == 0,
+        "Expected Test size to equal size input");
+    
+    dibData += DWORD;
+   
 }
 END_TEST
-
-
-
-// Custom asserts impls
-static void assert_struct_nerr(const bmp_result * const bmp) {
-    ck_assert_msg(bmp != NULL, "Result cannot be NULL");
-    ck_assert_msg(bmp->data != NULL, "Result data cannot be NULL");
-    ck_assert_msg(bmp->dataSize >= 0, "Result size must be ge 0");
-}
-
 
 // Check boilerplate
 static Suite * bmpSuite(void) {
