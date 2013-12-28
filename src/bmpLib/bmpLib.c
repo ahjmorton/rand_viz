@@ -17,8 +17,13 @@
 static const uint32_t BM_HEADER_SIZE = 14;
 static const uint32_t DIB_HEADER_SIZE = 40;
 static const uint32_t DIB_HEADER_VAL = DIB_HEADER_SIZE;
-static const uint32_t HEADERS_SIZE = BM_HEADER_SIZE + DIB_HEADER_SIZE;
 static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; // 'BM'
+static const unsigned char WHITE[4]    = {0xFF, 0xFF, 0xFF, 0xFF};
+static const unsigned char BLACK[4]    = {0x00, 0x00, 0x00, 0x00};
+static const uint32_t HEADERS_SIZE = BM_HEADER_SIZE + 
+                                     DIB_HEADER_SIZE +  
+                                     sizeof(WHITE) + 
+                                     sizeof(BLACK);
 
 // Convience constants
 static const size_t DWORD = sizeof(uint32_t);
@@ -68,6 +73,12 @@ bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
     memcpy_uint(dibHeader, PALETTE_SIZE);
     dibHeader += DWORD;
     memcpy_uint(dibHeader, VIP_COLORS);
+
+    unsigned char * colorTable = dibHeader + DWORD;
+    memcpy(colorTable, WHITE, sizeof(WHITE));
+
+    colorTable += sizeof(WHITE);
+    memcpy(colorTable, BLACK, sizeof(BLACK));
     return result;
 }
 

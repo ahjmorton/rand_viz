@@ -27,7 +27,10 @@ static const uint16_t COLOR_BITS   = 1;
 static const uint32_t COMPRESSION  = 0; 
 static const uint32_t DEFAULT_IMAGE_SIZE = 0;
 static const uint32_t DEFAULT_PALETTE_SIZE = 0;
-static const uint32_t DEFAULT_VIP_COLORS    = 0;
+static const uint32_t DEFAULT_VIP_COLORS   = 0;
+static const uint32_t COLOR_TABLE_SIZE = 8;
+static const unsigned char WHITE[4]    = {0xFF, 0xFF, 0xFF, 0xFF};
+static const unsigned char BLACK[4]    = {0x00, 0x00, 0x00, 0x00};
 
 static bmp_result * result;
 
@@ -119,6 +122,24 @@ START_TEST(test_dib_header_valid)
 }
 END_TEST
 
+START_TEST(test_color_table_valid)
+{
+    const int32_t size = result->dataSize;
+    ck_assert_msg(size >= BM_HEADER_SIZE + DIB_HEADER_SIZE + COLOR_TABLE_SIZE, 
+        "Size must be greater than BM_HEADER_SIZE + DIB_HEADER_SIZE + COLOR_TABLE_SIZE");
+
+    const unsigned char * colorTable = result->data   + 
+                                       BM_HEADER_SIZE +
+                                       DIB_HEADER_SIZE;
+    ck_assert_msg(memcmp(WHITE, colorTable, sizeof(WHITE)) == 0,
+         "Expected white to be first entry in color table");
+
+    colorTable += sizeof(WHITE);
+    ck_assert_msg(memcmp(BLACK, colorTable, sizeof(BLACK)) == 0,
+         "Expected black to be first entry in color table");
+}
+END_TEST
+
 // Check boilerplate
 static Suite * bmpSuite(void) {
     Suite * s = suite_create("bmpLib image tests");
@@ -127,6 +148,7 @@ static Suite * bmpSuite(void) {
     tcase_add_test(tc_simple, test_created_struct_valid);
     tcase_add_test(tc_simple, test_bmp_header_valid);
     tcase_add_test(tc_simple, test_dib_header_valid);
+    tcase_add_test(tc_simple, test_color_table_valid);
     suite_add_tcase(s, tc_simple);
     return s;
 }
