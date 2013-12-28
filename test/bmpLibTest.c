@@ -15,6 +15,7 @@ static const size_t DWORD = sizeof(uint32_t);
 static const uint32_t BM_HEADER_SIZE = 14;
 static const uint32_t DIB_HEADER_SIZE = 40;
 static const uint32_t DIB_HEADER_VAL = DIB_HEADER_SIZE;
+static const uint16_t DIB_COLOR_PLANES = 1;
 static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
 // Binary for 10101010
 // so black, white, black white etc.
@@ -23,7 +24,8 @@ static const uint32_t TEST_SIZE = sizeof(unsigned char);
 static const uint32_t TEST_BIT_SIZE = TEST_SIZE * CHAR_BIT;
 static const int32_t EXPECT_WIDTH = TEST_BIT_SIZE;
 static const int32_t EXPECT_HEIGHT = 1;
-
+static const uint16_t COLOR_PLANES = 1;
+static const uint16_t COLOR_BITS   = 1; 
 
 static bmp_result * result;
 
@@ -39,8 +41,6 @@ void teardown(void) {
 }
 
 // Custom assert decls
-
-
 static void assert_struct_nerr(const bmp_result * const bmp);
 
 //Tests go here
@@ -81,6 +81,18 @@ START_TEST(test_dib_header_valid)
 
     ck_assert_msg(memcmp(&EXPECT_HEIGHT, dibData, DWORD) == 0, 
         "Expected height to equal ");
+
+    dibData += DWORD;
+
+    ck_assert_msg(memcmp(&COLOR_PLANES, dibData, WORD) == 0,
+        "Only expected 1 color plane");
+
+    dibData += WORD;
+
+    ck_assert_msg(memcmp(&COLOR_BITS, dibData, WORD) == 0,
+        "Only expected 1 color bit to be specified");
+
+    dibData += WORD;
 
 }
 END_TEST

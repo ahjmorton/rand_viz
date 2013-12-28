@@ -17,6 +17,7 @@ static int32_t bw_pixel_width(uint32_t dataLen);
 static int32_t bw_pixel_height(uint32_t dataLen);
 
 static void memcpy_uint(unsigned char * loc, uint32_t value);
+static void memcpy_suint(unsigned char * loc, uint16_t value);
 static void memcpy_int(unsigned char * loc, int32_t value);
 
 bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
@@ -36,7 +37,11 @@ bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
     memcpy_int(dibHeader, bw_pixel_width(dataLen));
     dibHeader += DWORD;
     memcpy_int(dibHeader, bw_pixel_height(dataLen));
-  
+    dibHeader += DWORD;
+    memcpy_suint(dibHeader, 1);
+    dibHeader += WORD;
+    memcpy_suint(dibHeader, 1);
+    dibHeader += WORD;
     return result;
 }
 
@@ -56,6 +61,10 @@ static int32_t bw_pixel_height(uint32_t dataLen) {
 
 static void memcpy_uint(unsigned char * loc, uint32_t value) {
     *((uint32_t *)loc) = value;
+}
+
+static void memcpy_suint(unsigned char * loc, uint16_t value) {
+    *((uint16_t *)loc) = value;
 }
 
 static void memcpy_int(unsigned char * loc, int32_t value) {
