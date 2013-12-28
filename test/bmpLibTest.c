@@ -20,11 +20,12 @@ static const size_t DWORD = sizeof(uint32_t);
 
 static const uint32_t BM_HEADER_SIZE = 14;
 static const uint32_t DIB_HEADER_SIZE = 40;
-static const uint32_t COLOR_TABLE_SIZE = 8;
-static const uint32_t TOTAL_SIZE = BM_HEADER_SIZE   +
-                                   DIB_HEADER_SIZE  + 
-                                   COLOR_TABLE_SIZE +
-                                   DWORD; // Padded to 4 bytes
+static const uint32_t COLOR_TABLE_SIZE = 8;  
+static const uint32_t HEADER_SIZE = BM_HEADER_SIZE  +
+                                    DIB_HEADER_SIZE +
+                                    COLOR_TABLE_SIZE;
+static const uint32_t TOTAL_SIZE = HEADER_SIZE + DWORD; // Padded to 4 bytes
+
 
 static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
 static const uint32_t DIB_HEADER_VAL = DIB_HEADER_SIZE;
@@ -83,8 +84,10 @@ START_TEST(test_bmp_header_valid)
 
     bmpHeader += DWORD;
 
-    //Skip resevered bytes
+    //Skip reserved bytes
     bmpHeader += DWORD;
+    ck_assert_msg(memcmp(&HEADER_SIZE, bmpHeader, DWORD) == 0,
+       "Expected offset to bitmap data to be presetn");
 }
 END_TEST
 
