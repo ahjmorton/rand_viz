@@ -10,27 +10,38 @@
 
 // Constants
 
-static const size_t WORD = sizeof(uint16_t);
-static const size_t DWORD = sizeof(uint32_t);
-static const uint32_t BM_HEADER_SIZE = 14;
-static const uint32_t DIB_HEADER_SIZE = 40;
-static const uint32_t DIB_HEADER_VAL = DIB_HEADER_SIZE;
-static const uint16_t DIB_COLOR_PLANES = 1;
-static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
+
 static const unsigned char TEST_INPUT = 0b10101010;
 static const uint32_t TEST_SIZE = sizeof(unsigned char);
 static const uint32_t TEST_BIT_SIZE = TEST_SIZE * CHAR_BIT;
+
+static const size_t WORD = sizeof(uint16_t);
+static const size_t DWORD = sizeof(uint32_t);
+
+static const uint32_t BM_HEADER_SIZE = 14;
+static const uint32_t DIB_HEADER_SIZE = 40;
+static const uint32_t COLOR_TABLE_SIZE = 8;
+static const uint32_t TOTAL_SIZE = BM_HEADER_SIZE   +
+                                   DIB_HEADER_SIZE  + 
+                                   COLOR_TABLE_SIZE +
+                                   DWORD; // Padded to 4 bytes
+
+static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
+static const uint32_t DIB_HEADER_VAL = DIB_HEADER_SIZE;
+
 static const int32_t EXPECT_WIDTH = TEST_BIT_SIZE;
 static const int32_t EXPECT_HEIGHT = 1;
+
+static const uint16_t DIB_COLOR_PLANES = 1;
 static const uint16_t COLOR_PLANES = 1;
 static const uint16_t COLOR_BITS   = 1; 
 static const uint32_t COMPRESSION  = 0; 
 static const uint32_t DEFAULT_IMAGE_SIZE = 0;
 static const uint32_t DEFAULT_PALETTE_SIZE = 0;
 static const uint32_t DEFAULT_VIP_COLORS   = 0;
-static const uint32_t COLOR_TABLE_SIZE = 8;
 static const unsigned char WHITE[4]    = {0xFF, 0xFF, 0xFF, 0xFF};
 static const unsigned char BLACK[4]    = {0x00, 0x00, 0x00, 0x00};
+
 
 static bmp_result * result;
 
@@ -59,12 +70,21 @@ END_TEST
 START_TEST(test_bmp_header_valid) 
 {
     const int32_t size = result->dataSize;
-    const unsigned char * data = result->data;
+    const unsigned char * bmpHeader = result->data;
 
     ck_assert_msg(size >= BM_HEADER_SIZE, 
         "Size must be greater than BM_HEADER_SIZE");
-    ck_assert_msg(memcmp(BM_MAGIC, data, sizeof(BM_MAGIC)) ==  0,
+    ck_assert_msg(memcmp(BM_MAGIC, bmpHeader, sizeof(BM_MAGIC)) ==  0,
         "BMP magic number not found");
+    
+    bmpHeader += sizeof(BM_MAGIC);
+    ck_assert_msg(memcmp(&TOTAL_SIZE, bmpHeader, DWORD) == 0,
+       "Exepcted size does not match expectation");
+
+    bmpHeader += DWORD;
+
+    //Skip resevered bytes
+    bmpHeader += DWORD;
 }
 END_TEST
 
