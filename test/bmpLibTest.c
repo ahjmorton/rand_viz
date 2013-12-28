@@ -26,6 +26,8 @@ static const uint16_t COLOR_PLANES = 1;
 static const uint16_t COLOR_BITS   = 1; 
 static const uint32_t COMPRESSION  = 0; 
 static const uint32_t DEFAULT_IMAGE_SIZE = 0;
+static const uint32_t DEFAULT_PALETTE_SIZE = 0;
+static const uint32_t DEFAULT_VIP_COLORS    = 0;
 
 static bmp_result * result;
 
@@ -74,37 +76,46 @@ START_TEST(test_dib_header_valid)
         "Expecting header size to be present as first entry in dib header");
 
     dibData += DWORD;
-
     ck_assert_msg(memcmp(&EXPECT_WIDTH, dibData, DWORD) == 0, 
         "Expected width to equal ");
 
     dibData += DWORD;
-
     ck_assert_msg(memcmp(&EXPECT_HEIGHT, dibData, DWORD) == 0, 
         "Expected height to equal ");
 
     dibData += DWORD;
-
     ck_assert_msg(memcmp(&COLOR_PLANES, dibData, WORD) == 0,
         "Only expected 1 color plane");
 
     dibData += WORD;
-
     ck_assert_msg(memcmp(&COLOR_BITS, dibData, WORD) == 0,
         "Only expected 1 color bit to be specified");
 
     dibData += WORD;
- 
     ck_assert_msg(memcmp(&COMPRESSION, dibData, DWORD) == 0,
         "Expected compression to be disabled");
  
     dibData += DWORD;
-
     ck_assert_msg(memcmp(&DEFAULT_IMAGE_SIZE, dibData, DWORD) == 0,
         "Expected Test size to equal size input");
     
     dibData += DWORD;
-   
+    const int32_t horzRes = *((int32_t *)dibData);
+    ck_assert_msg(horzRes > 0, 
+        "Expected horizontal resolution to be greater than zero");
+    
+    dibData += DWORD;
+    const int32_t vertRes = *((int32_t *)dibData);
+    ck_assert_msg(vertRes > 0, 
+        "Expected vertial resolution to be greater than zero");
+
+    dibData += DWORD;
+    ck_assert_msg(memcmp(&DEFAULT_PALETTE_SIZE, dibData, DWORD) == 0,
+        "Expected default color palette to be used");
+
+    dibData += DWORD;
+    ck_assert_msg(memcmp(&DEFAULT_VIP_COLORS, dibData, DWORD) == 0,
+        "Expected no important colors to be defined");
 }
 END_TEST
 

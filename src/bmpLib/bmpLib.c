@@ -10,6 +10,9 @@
 #define COLOR_BITS 1
 #define COMPRESSION 0 
 #define DEFAULT_IMAGE_SIZE 0 
+#define RESOLUTION 2835
+#define PALETTE_SIZE 0
+#define VIP_COLORS 0
 
 static const uint32_t BM_HEADER_SIZE = 14;
 static const uint32_t DIB_HEADER_SIZE = 40;
@@ -55,8 +58,16 @@ bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
     memcpy_uint(dibHeader, COMPRESSION);
     dibHeader += DWORD;
     memcpy_uint(dibHeader, DEFAULT_IMAGE_SIZE);
+    // Horizontal
     dibHeader += DWORD;
-    
+    memcpy_int(dibHeader, RESOLUTION);
+    // Vertical
+    dibHeader += DWORD;
+    memcpy_int(dibHeader, RESOLUTION);
+    dibHeader += DWORD;
+    memcpy_uint(dibHeader, PALETTE_SIZE);
+    dibHeader += DWORD;
+    memcpy_uint(dibHeader, VIP_COLORS);
     return result;
 }
 
