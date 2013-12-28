@@ -91,11 +91,13 @@ bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
     memcpy_uint(dibHeader, VIP_COLORS);
 
     unsigned char * colorTable = dibHeader + DWORD;
-    memcpy(colorTable, WHITE, sizeof(WHITE));
-
-    colorTable += sizeof(WHITE);
     memcpy(colorTable, BLACK, sizeof(BLACK));
 
+    colorTable += sizeof(BLACK);
+    memcpy(colorTable, WHITE, sizeof(WHITE));
+
+    unsigned char * pixelArrayPtr = colorTable + sizeof(WHITE);
+    memcpy(pixelArrayPtr, pixelArray, pixelArraySize); 
     free(pixelArray);
 
     bmp_result * const result = (bmp_result *)malloc(1 * sizeof(bmp_result));

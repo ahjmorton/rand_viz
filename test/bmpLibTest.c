@@ -154,12 +154,25 @@ START_TEST(test_color_table_valid)
     const unsigned char * colorTable = result->data   + 
                                        BM_HEADER_SIZE +
                                        DIB_HEADER_SIZE;
-    ck_assert_msg(memcmp(WHITE, colorTable, sizeof(WHITE)) == 0,
-         "Expected white to be first entry in color table");
-
-    colorTable += sizeof(WHITE);
     ck_assert_msg(memcmp(BLACK, colorTable, sizeof(BLACK)) == 0,
          "Expected black to be first entry in color table");
+
+    colorTable += sizeof(BLACK);
+    ck_assert_msg(memcmp(WHITE, colorTable, sizeof(WHITE)) == 0,
+         "Expected black to be first entry in color table");
+}
+END_TEST
+
+START_TEST(test_pixel_array_valid)
+{
+    const int32_t size = result->dataSize;
+    ck_assert_msg(size == TOTAL_SIZE,
+        "Size must be equal to expected size");
+    
+    unsigned char * pixelArray = result->data + HEADER_SIZE;
+    ck_assert_msg(memcmp(&TEST_INPUT, pixelArray, TEST_SIZE) == 0,
+        "Expected test input to be equal to the pixel array");
+    
 }
 END_TEST
 
@@ -172,6 +185,7 @@ static Suite * bmpSuite(void) {
     tcase_add_test(tc_simple, test_bmp_header_valid);
     tcase_add_test(tc_simple, test_dib_header_valid);
     tcase_add_test(tc_simple, test_color_table_valid);
+    tcase_add_test(tc_simple, test_pixel_array_valid);
     suite_add_tcase(s, tc_simple);
     return s;
 }
