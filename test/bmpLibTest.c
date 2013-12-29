@@ -24,7 +24,9 @@ static const uint32_t COLOR_TABLE_SIZE = 8;
 static const uint32_t HEADER_SIZE = BM_HEADER_SIZE  +
                                     DIB_HEADER_SIZE +
                                     COLOR_TABLE_SIZE;
-static const uint32_t TOTAL_SIZE = HEADER_SIZE + DWORD; // Padded to 4 bytes
+static const uint32_t PADDING = sizeof(unsigned char) * 3;
+static const uint32_t PIXEL_ARRAY_SIZE = TEST_SIZE + PADDING;
+static const uint32_t TOTAL_SIZE = HEADER_SIZE + PIXEL_ARRAY_SIZE;
 
 
 static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; 
@@ -122,17 +124,17 @@ START_TEST(test_dib_header_valid)
         "Expected compression to be disabled");
  
     dibData += DWORD;
-    ck_assert_msg(memcmp(&DEFAULT_IMAGE_SIZE, dibData, DWORD) == 0,
+    ck_assert_msg(memcmp(&PIXEL_ARRAY_SIZE, dibData, DWORD) == 0,
         "Expected Test size to equal size input");
     
     dibData += DWORD;
     const int32_t horzRes = *((int32_t *)dibData);
-    ck_assert_msg(horzRes > 0, 
+    ck_assert_msg(horzRes >= 0, 
         "Expected horizontal resolution to be greater than zero");
     
     dibData += DWORD;
     const int32_t vertRes = *((int32_t *)dibData);
-    ck_assert_msg(vertRes > 0, 
+    ck_assert_msg(vertRes >= 0, 
         "Expected vertial resolution to be greater than zero");
 
     dibData += DWORD;
@@ -172,7 +174,8 @@ START_TEST(test_pixel_array_valid)
     unsigned char * pixelArray = result->data + HEADER_SIZE;
     ck_assert_msg(memcmp(&TEST_INPUT, pixelArray, TEST_SIZE) == 0,
         "Expected test input to be equal to the pixel array");
-    
+ 
+  
 }
 END_TEST
 

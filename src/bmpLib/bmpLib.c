@@ -10,15 +10,15 @@
 #define COLOR_BITS 1
 #define COMPRESSION 0 
 #define DEFAULT_IMAGE_SIZE 0 
-#define RESOLUTION 2835
+#define RESOLUTION 0
 #define PALETTE_SIZE 0
 #define VIP_COLORS 0
+#define PIXEL_PADDING 4
 
 static const uint32_t BM_HEADER_SIZE = 14;
 static const uint32_t DIB_HEADER_SIZE = 40;
 static const uint32_t DIB_HEADER_VAL = DIB_HEADER_SIZE;
 static const unsigned char BM_MAGIC[2] = {0x42, 0x4D}; // 'BM'
-static const unsigned char RESERVED_HEADER[4]     = {0x4A, 0x41, 0x4E, 0x4B};
 static const unsigned char WHITE[4]    = {0xFF, 0xFF, 0xFF, 0xFF};
 static const unsigned char BLACK[4]    = {0x00, 0x00, 0x00, 0x00};
 static const uint32_t COLOR_TABLE_SIZE = sizeof(WHITE) +
@@ -59,9 +59,10 @@ bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
     memcpy_uint(bmpHeader, totalSize);
 
     bmpHeader += DWORD;
-    memcpy(bmpHeader, RESERVED_HEADER, sizeof(RESERVED_HEADER));
+    //Zero out reserved fields
+    memset(bmpHeader, 0, DWORD);
+    bmpHeader += DWORD;
 
-    bmpHeader += sizeof(RESERVED_HEADER);
     memcpy_uint(bmpHeader, HEADERS_SIZE);
 
     unsigned char * dibHeader = resultData + BM_HEADER_SIZE;
@@ -78,7 +79,7 @@ bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
     dibHeader += WORD;
     memcpy_uint(dibHeader, COMPRESSION);
     dibHeader += DWORD;
-    memcpy_uint(dibHeader, DEFAULT_IMAGE_SIZE);
+    memcpy_uint(dibHeader, pixelArraySize);
     // Horizontal
     dibHeader += DWORD;
     memcpy_int(dibHeader, RESOLUTION);
@@ -113,9 +114,9 @@ void bmp_free(bmp_result * result) {
 }
 
 static uint32_t render_bw_pixels(const unsigned char * data, const uint32_t dataLen, unsigned char ** pixelArray) {
-    const uint32_t arraySize = dataLen % 4 == 0 ? 
+    const uint32_t arraySize = dataLen % PIXEL_PADDING == 0 ? 
                                dataLen          :
-                               dataLen + (4 - (dataLen % 4));
+                               dataLen + (PIXEL_PADDING - (dataLen % PIXEL_PADDING));
     unsigned char * result = (unsigned char *)calloc(arraySize, sizeof(unsigned char));
     memcpy(result, data, dataLen);
     (*pixelArray) = result;
