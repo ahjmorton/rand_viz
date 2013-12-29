@@ -42,10 +42,20 @@ static const uint32_t COMPRESSION  = 0;
 static const uint32_t DEFAULT_IMAGE_SIZE = 0;
 static const uint32_t DEFAULT_PALETTE_SIZE = 0;
 static const uint32_t DEFAULT_VIP_COLORS   = 0;
-static const unsigned char WHITE[4]    = {0xFF, 0xFF, 0xFF, 0xFF};
-static const unsigned char BLACK[4]    = {0x00, 0x00, 0x00, 0x00};
 
+#define COLOR_SIZE 4
+static const unsigned char WHITE[COLOR_SIZE] = {0xFF, 0xFF, 0xFF, 0xFF};
+static const unsigned char BLACK[COLOR_SIZE] = {0x00, 0x00, 0x00, 0x00};
+static const uint32_t COLOR_COUNT = 2;
 
+// Custom assert decl
+
+static void assert_color_in_table(
+            const unsigned char * colorTable,
+            const uint32_t colors,
+            const unsigned char color[COLOR_SIZE]);
+
+// Subject under test
 static bmp_result * result;
 
 // Setup / teardown
@@ -156,12 +166,8 @@ START_TEST(test_color_table_valid)
     const unsigned char * colorTable = result->data   + 
                                        BM_HEADER_SIZE +
                                        DIB_HEADER_SIZE;
-    ck_assert_msg(memcmp(BLACK, colorTable, sizeof(BLACK)) == 0,
-         "Expected black to be first entry in color table");
-
-    colorTable += sizeof(BLACK);
-    ck_assert_msg(memcmp(WHITE, colorTable, sizeof(WHITE)) == 0,
-         "Expected black to be first entry in color table");
+    assert_color_in_table(colorTable, COLOR_COUNT, BLACK);
+    assert_color_in_table(colorTable, COLOR_COUNT, WHITE);
 }
 END_TEST
 
@@ -178,6 +184,22 @@ START_TEST(test_pixel_array_valid)
   
 }
 END_TEST
+
+// Custom assert impl
+static void assert_color_in_table(
+            const unsigned char * colorTable,
+            const uint32_t colors,
+            const unsigned char color[COLOR_SIZE]) {
+    const size_t inc = sizeof(unsigned char) * COLOR_SIZE;
+    for(int i = 0; i < colors; i++) {
+        if(memcmp(color, colorTable + (i * inc), COLOR_SIZE) == 0) {
+            return;
+        }
+    }
+    ck_abort_msg("Unable to find color in color table");
+}
+
+
 
 // Check boilerplate
 static Suite * bmpSuite(void) {
