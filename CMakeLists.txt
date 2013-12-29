@@ -18,6 +18,12 @@ file(GLOB BMP_LIB_SOURCES "${BMP_LIB_SRC}/*.c")
 include_directories("${BMP_LIB_INCLUDES}")
 add_library(${BMP_LIB} STATIC ${BMP_LIB_SOURCES})
 
+#Declare main executable 
+set(RAND_VIZ "rand_viz")
+set(RAND_VIZ_SRC "${SRC_PATH}/rand_viz")
+add_executable(${RAND_VIZ} "${RAND_VIZ_SRC}/main.c")
+target_link_libraries(${RAND_VIZ} ${BMP_LIB})
+
 #Setup testing
 enable_testing()
 add_subdirectory(test)
