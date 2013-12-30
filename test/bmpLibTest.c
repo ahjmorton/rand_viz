@@ -185,6 +185,33 @@ START_TEST(test_pixel_array_valid)
 }
 END_TEST
 
+#define MAX_WIDTH 8
+
+START_TEST(test_multi_line_output_is_valid) 
+{
+ 
+    unsigned char testInput[2] = {0b10101010, 0b01010101};
+
+    bmp_result * result =
+       create_bw_bmp(testInput, 2, MAX_WIDTH);
+
+    unsigned char * pixelArray = result->data + HEADER_SIZE;
+    
+    ck_assert_msg(memcmp(testInput + 1, pixelArray, 1) == 0,
+        "Expected second entry of test input to be the first line of output");
+
+    pixelArray += DWORD;
+    
+    ck_assert_msg(memcmp(testInput, pixelArray, 1) == 0,
+        "Expected first entry of test input to be the second line of output");
+
+
+    if(result != NULL) {
+        bmp_free(result);
+    }
+}
+END_TEST
+
 // Custom assert impl
 static void assert_color_in_table(
             const unsigned char * colorTable,
@@ -203,15 +230,20 @@ static void assert_color_in_table(
 
 // Check boilerplate
 static Suite * bmpSuite(void) {
-    Suite * s = suite_create("bmpLib image tests");
-    TCase * tc_simple = tcase_create("lib creates valid images");
-    tcase_add_checked_fixture(tc_simple, setup, teardown);
-    tcase_add_test(tc_simple, test_created_struct_valid);
-    tcase_add_test(tc_simple, test_bmp_header_valid);
-    tcase_add_test(tc_simple, test_dib_header_valid);
-    tcase_add_test(tc_simple, test_color_table_valid);
-    tcase_add_test(tc_simple, test_pixel_array_valid);
-    suite_add_tcase(s, tc_simple);
+    Suite * s = suite_create("the bmpLib should ");
+    TCase * oneLineTest = tcase_create("create output on a single line with max length of zero");
+    tcase_add_checked_fixture(oneLineTest, setup, teardown);
+    tcase_add_test(oneLineTest, test_created_struct_valid);
+    tcase_add_test(oneLineTest, test_bmp_header_valid);
+    tcase_add_test(oneLineTest, test_dib_header_valid);
+    tcase_add_test(oneLineTest, test_color_table_valid);
+    tcase_add_test(oneLineTest, test_pixel_array_valid);
+    suite_add_tcase(s, oneLineTest);
+
+    TCase * multiLineTest = tcase_create("create output on multiple lines with a max length greater than zero");
+    tcase_add_test(multiLineTest, test_multi_line_output_is_valid);
+    suite_add_tcase(s, multiLineTest);
+
     return s;
 }
 

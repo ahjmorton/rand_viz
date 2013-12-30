@@ -36,6 +36,7 @@ static const size_t WORD  = sizeof(uint16_t);
 static uint32_t render_bw_pixels(const unsigned char * data,
                                  const uint32_t dataLen, 
                                  const int32_t pixelWidth, 
+                                 const int32_t pixelHeight, 
                                  unsigned char ** pixelArray);
 
 static int32_t bw_pixel_width(uint32_t dataLen, uint32_t maxWidth);
@@ -52,7 +53,7 @@ bmp_result * create_bw_bmp(const unsigned char * data,
     const uint32_t pixelWidth = bw_pixel_width(dataLen, maxWidth);
     const uint32_t pixelHeight = bw_pixel_height(dataLen, pixelWidth);
     const uint32_t pixelArraySize = 
-        render_bw_pixels(data, dataLen, pixelWidth, &pixelArray);
+        render_bw_pixels(data, dataLen, pixelWidth, pixelHeight, &pixelArray);
 
     const uint32_t totalSize = HEADERS_SIZE + pixelArraySize;
 
@@ -123,22 +124,35 @@ void bmp_free(bmp_result * result) {
 static uint32_t render_bw_pixels(const unsigned char * data, 
                                  const uint32_t dataLen, 
                                  const int32_t pixelWidth,
+                                 const int32_t pixelHeight,
                                  unsigned char ** pixelArray) {
-    const uint32_t arraySize = dataLen % PIXEL_PADDING == 0 ? 
-                               dataLen          :
-                               dataLen + (PIXEL_PADDING - (dataLen % PIXEL_PADDING));
+    const uint32_t bytePerRow = pixelWidth / CHAR_BIT;
+    const uint32_t rowSize = bytePerRow % PIXEL_PADDING == 0 ? 
+                             bytePerRow :
+                             bytePerRow + (PIXEL_PADDING - (bytePerRow % PIXEL_PADDING));
+    const uint32_t arraySize = rowSize * pixelHeight;
     unsigned char * result = (unsigned char *)calloc(arraySize, sizeof(unsigned char));
-    memcpy(result, data, dataLen);
+    for(int i = 0; i < pixelHeight; i++) {
+        memcpy(result + (rowSize * i), 
+               (data + dataLen) - (bytePerRow * (i + 1)), 
+               bytePerRow);
+    }
     (*pixelArray) = result;
     return arraySize;
 }
 
 static int32_t bw_pixel_width(uint32_t dataLen, uint32_t maxWidth) {
-    return dataLen * CHAR_BIT;
+    const uint32_t dataLenPixels = dataLen * CHAR_BIT;
+    if(maxWidth == 0 || dataLenPixels <= maxWidth) {
+        return dataLenPixels;
+    }
+    else {
+        return maxWidth;
+    }
 }
 
 static int32_t bw_pixel_height(uint32_t dataLen, int pixelWidth) {
-    return 1;
+    return (dataLen * CHAR_BIT) / pixelWidth;
 }
 
 static void memcpy_uint(unsigned char * loc, uint32_t value) {
