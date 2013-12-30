@@ -33,19 +33,26 @@ static const size_t WORD  = sizeof(uint16_t);
 
 // Function decls 
 
-static uint32_t render_bw_pixels(const unsigned char * data, const uint32_t dataLen, unsigned char ** pixelArray);
+static uint32_t render_bw_pixels(const unsigned char * data,
+                                 const uint32_t dataLen, 
+                                 const int32_t pixelWidth, 
+                                 unsigned char ** pixelArray);
 
-static int32_t bw_pixel_width(uint32_t dataLen);
-static int32_t bw_pixel_height(uint32_t dataLen);
+static int32_t bw_pixel_width(uint32_t dataLen, uint32_t maxWidth);
+static int32_t bw_pixel_height(uint32_t dataLen, int32_t pixelWidth);
 
 static void memcpy_uint(unsigned char * loc, uint32_t value);
 static void memcpy_suint(unsigned char * loc, uint16_t value);
 static void memcpy_int(unsigned char * loc, int32_t value);
 
-bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
+bmp_result * create_bw_bmp(const unsigned char * data, 
+                           const uint32_t dataLen,
+                           const uint32_t maxWidth) {
     unsigned char * pixelArray = NULL;
-    const uint32_t pixelArraySize = render_bw_pixels(data, dataLen, &pixelArray);
-
+    const uint32_t pixelWidth = bw_pixel_width(dataLen, maxWidth);
+    const uint32_t pixelHeight = bw_pixel_height(dataLen, pixelWidth);
+    const uint32_t pixelArraySize = 
+        render_bw_pixels(data, dataLen, pixelWidth, &pixelArray);
 
     const uint32_t totalSize = HEADERS_SIZE + pixelArraySize;
 
@@ -69,9 +76,9 @@ bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen) {
   
     memcpy_uint(dibHeader, DIB_HEADER_SIZE);
     dibHeader += DWORD;
-    memcpy_int(dibHeader, bw_pixel_width(dataLen));
+    memcpy_int(dibHeader, pixelWidth);
     dibHeader += DWORD;
-    memcpy_int(dibHeader, bw_pixel_height(dataLen));
+    memcpy_int(dibHeader, pixelHeight);
     dibHeader += DWORD;
     memcpy_suint(dibHeader, COLOR_PLANES);
     dibHeader += WORD;
@@ -113,7 +120,10 @@ void bmp_free(bmp_result * result) {
     free(result); 
 }
 
-static uint32_t render_bw_pixels(const unsigned char * data, const uint32_t dataLen, unsigned char ** pixelArray) {
+static uint32_t render_bw_pixels(const unsigned char * data, 
+                                 const uint32_t dataLen, 
+                                 const int32_t pixelWidth,
+                                 unsigned char ** pixelArray) {
     const uint32_t arraySize = dataLen % PIXEL_PADDING == 0 ? 
                                dataLen          :
                                dataLen + (PIXEL_PADDING - (dataLen % PIXEL_PADDING));
@@ -123,11 +133,11 @@ static uint32_t render_bw_pixels(const unsigned char * data, const uint32_t data
     return arraySize;
 }
 
-static int32_t bw_pixel_width(uint32_t dataLen) {
+static int32_t bw_pixel_width(uint32_t dataLen, uint32_t maxWidth) {
     return dataLen * CHAR_BIT;
 }
 
-static int32_t bw_pixel_height(uint32_t dataLen) {
+static int32_t bw_pixel_height(uint32_t dataLen, int pixelWidth) {
     return 1;
 }
 

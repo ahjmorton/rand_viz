@@ -60,7 +60,7 @@ static bmp_result * result;
 
 // Setup / teardown
 void setup(void) {
-    result = create_bw_bmp(&TEST_INPUT, TEST_SIZE);
+    result = create_bw_bmp(&TEST_INPUT, TEST_SIZE, 0);
 }
 
 void teardown(void) {

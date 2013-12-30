@@ -10,7 +10,7 @@ struct _bmp_result_holder {
 
 typedef struct _bmp_result_holder bmp_result; 
 
-bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen);
+bmp_result * create_bw_bmp(const unsigned char * data, const uint32_t dataLen, const uint32_t maxWidth);
 
 void bmp_free(bmp_result * result);
 

@@ -14,7 +14,7 @@ static void write_out_bmp(const bmp_result * const output, FILE* input);
 int main(void) {
     unsigned char * input = NULL;
     const uint32_t bytesRead = read_in_input(stdin, &input);
-    bmp_result * output = create_bw_bmp(input, bytesRead); 
+    bmp_result * output = create_bw_bmp(input, bytesRead, 1024); 
     free(input);  
     write_out_bmp(output, stdout);
     bmp_free(output);
