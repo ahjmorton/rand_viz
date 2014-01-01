@@ -10,12 +10,15 @@
 
 static uint32_t read_in_input(FILE* input, unsigned char ** result);
 
+static uint32_t determine_max_width(const uint32_t bytesRead);
+
 static void write_out_bmp(const bmp_result * const output, FILE* input);
 
 int main(void) {
     unsigned char * input = NULL;
     const uint32_t bytesRead = read_in_input(stdin, &input);
-    bmp_result * output = create_bw_bmp(input, bytesRead, 256);
+    const uint32_t maxWidth = determine_max_width(bytesRead);
+    bmp_result * output = create_bw_bmp(input, bytesRead, maxWidth);
     free(input);  
     write_out_bmp(output, stdout);
     bmp_free(output);
@@ -43,6 +46,17 @@ static uint32_t read_in_input(FILE* stream, unsigned char ** result) {
     buffer = (unsigned char *)realloc(buffer, count * charSize);
     (*result) = buffer;
     return count;
+}
+
+#define BITS_PER_BYTE 8
+
+static uint32_t determine_max_width(const uint32_t bytesRead) {
+    const uint32_t pixelVolume = bytesRead * BITS_PER_BYTE;
+    uint32_t width = floor(sqrt(pixelVolume));
+    while((pixelVolume % width) != 0) {
+        --width;
+    }
+    return width >= 1 ? width : 1;
 }
 
 static void write_out_bmp(const bmp_result * const output, FILE* stream) {
